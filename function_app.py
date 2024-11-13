@@ -16,7 +16,14 @@ app = func.FunctionApp()
     run_on_startup=True,
     use_monitor=False,
 )
-def review_collector(collectionTimer: func.TimerRequest) -> None:
+
+# @app.generic_output_binding(arg_name="reviewTableBinding", type="sql", CommandText="dbo.customer_reviews", ConnectionStringSetting="SqlConnectionString"
+# data_type=DataType.STRING)
+
+
+def review_collector(
+    collectionTimer: func.TimerRequest, reviewTableBinding: func.Out[func.SqlRow]
+) -> None:
     with open("sorted_modified_reviews.json", "r") as file:
         dataset = json.load(file)
 
@@ -30,6 +37,7 @@ def review_collector(collectionTimer: func.TimerRequest) -> None:
     # Commit the reviews to a DB
     if new_reviews:
         logging.info(new_reviews)
+        reviewTableBinding.set(func.SqlRow)
         pass
 
     return

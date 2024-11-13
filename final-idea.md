@@ -22,3 +22,5 @@ CREATE TABLE customer_reviews (
 );
 
 Server=tcp:ozzy-server.database.windows.net,1433;Initial Catalog=ozzy-database;Persist Security Info=False;User ID=ozzy;Password={X[lrA:"QZS[]4N8Zzlw)};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
+
+X[lrA:"QZS[]4N8Zzlw)
