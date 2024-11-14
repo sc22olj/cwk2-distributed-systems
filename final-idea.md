@@ -14,7 +14,7 @@ Benefits
 - Allows quick insight into problems without needing to read every review
 
 CREATE TABLE customer_reviews (
-    db_review_id INT PRIMARY KEY,
+    db_review_id UNIQUEIDENTIFIER PRIMARY KEY,
     api_review_id TEXT,
     rating INT CHECK (rating >= 1 AND rating <= 5),
     review_text TEXT NOT NULL,                                
@@ -24,3 +24,5 @@ CREATE TABLE customer_reviews (
 Server=tcp:ozzy-server.database.windows.net,1433;Initial Catalog=ozzy-database;Persist Security Info=False;User ID=ozzy;Password={X[lrA:"QZS[]4N8Zzlw)};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
 
 X[lrA:"QZS[]4N8Zzlw)
+
+ntfy.sh

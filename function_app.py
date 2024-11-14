@@ -1,7 +1,9 @@
 import logging
-import azure.functions as func
 import json
 import random
+import uuid
+import azure.functions as func
+from azure.functions.decorators.core import DataType
 
 app = func.FunctionApp()
 
@@ -16,11 +18,13 @@ app = func.FunctionApp()
     run_on_startup=True,
     use_monitor=False,
 )
-
-# @app.generic_output_binding(arg_name="reviewTableBinding", type="sql", CommandText="dbo.customer_reviews", ConnectionStringSetting="SqlConnectionString"
-# data_type=DataType.STRING)
-
-
+@app.generic_output_binding(
+    arg_name="reviewTableBinding",
+    type="sql",
+    CommandText="dbo.customer_reviews",
+    ConnectionStringSetting="SqlConnectionString",
+    data_type=DataType.STRING,
+)
 def review_collector(
     collectionTimer: func.TimerRequest, reviewTableBinding: func.Out[func.SqlRow]
 ) -> None:
@@ -37,8 +41,17 @@ def review_collector(
     # Commit the reviews to a DB
     if new_reviews:
         logging.info(new_reviews)
-        reviewTableBinding.set(func.SqlRow)
-        pass
+        for review in new_reviews:
+            reviewTableBinding.set(
+                func.SqlRow(
+                    {
+                        "db_review_id": str(uuid.uuid4()),
+                        "api_review_id": review["review_id"],
+                        "rating": review["stars"],
+                        "review_text": review["text"],
+                    }
+                )
+            )
 
     return
 
