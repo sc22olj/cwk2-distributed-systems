@@ -46,9 +46,9 @@ def review_collector(
                 func.SqlRow(
                     {
                         "db_review_id": str(uuid.uuid4()),
-                        "api_review_id": review["review_id"],
-                        "rating": review["stars"],
-                        "review_text": review["text"],
+                        "api_review_id": str(review["review_id"]),
+                        "rating": int(review["stars"]),
+                        "review_text": str(review["text"]),
                     }
                 )
             )

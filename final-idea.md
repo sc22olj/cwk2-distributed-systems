@@ -15,9 +15,9 @@ Benefits
 
 CREATE TABLE customer_reviews (
     db_review_id UNIQUEIDENTIFIER PRIMARY KEY,
-    api_review_id TEXT,
+    api_review_id NVARCHAR,
     rating INT CHECK (rating >= 1 AND rating <= 5),
-    review_text TEXT NOT NULL,                                
+    review_text NVARCHAR NOT NULL,                                
     date_added DATETIME2(0) DEFAULT CURRENT_TIMESTAMP,
 );
 
