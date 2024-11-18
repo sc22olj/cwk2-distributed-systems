@@ -13,7 +13,7 @@ app = func.FunctionApp()
 # Note that each API call for review collection actually uses processed and simplified dummy data from the Yelp reviews dataset
 # Real life implementation examples are given in the docstring of each helper function
 @app.schedule(
-    schedule="0 * * * * *",
+    schedule="*/10 * * * * *",
     arg_name="collectionTimer",
     run_on_startup=True,
     use_monitor=False,
