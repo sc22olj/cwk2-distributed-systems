@@ -71,10 +71,10 @@ def collect_google(dataset):
     reviews = []
 
     # Simulate that there may or may not be new review(s)
-    if random.choices([0, 1], weights=[0.7, 0.3], k=1)[0] == 1:
+    if random.choices([0, 1], weights=[0.2, 0.5], k=1)[0] == 1:
 
-        # Randomly pick between 1 and 3 reviews from the dataset
-        reviews = random.sample(dataset, random.randint(1, 3))
+        # Randomly pick between 2 and 4 reviews from the dataset
+        reviews = random.sample(dataset, random.randint(2, 4))
 
     else:
         logging.info("No new reviews")
@@ -100,7 +100,7 @@ def collect_tripadvisor(dataset):
     if random.choices([0, 1], weights=[0.8, 0.2], k=1)[0] == 1:
 
         # Randomly pick between 1 and 3 reviews from the dataset
-        reviews = random.sample(dataset, random.randint(1, 2))
+        reviews = random.sample(dataset, random.randint(1, 3))
 
     else:
         logging.info("No new reviews")
