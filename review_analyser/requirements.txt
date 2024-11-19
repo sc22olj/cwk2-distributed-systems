@@ -4,5 +4,5 @@
 
 azure-functions
 spacy
-spacytextblob
 pathlib
+asent
