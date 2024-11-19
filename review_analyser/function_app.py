@@ -6,6 +6,7 @@ import spacy
 import pathlib
 import asent
 import requests
+import time
 
 app = func.FunctionApp()
 
@@ -21,11 +22,19 @@ app = func.FunctionApp()
 def review_analyser(reviewTableTriggerBinding: str) -> None:
 
     # Load new revies
-    new_reviews = json.loads(reviewTableTriggerBinding)
-    logging.info(new_reviews)
+    db_changes = json.loads(reviewTableTriggerBinding)
+    logging.info(db_changes)
+
+    # Filter out deletions or updates to rows to prevent errors
+    new_reviews = [item for item in db_changes if item.get("Operation") == 0]
 
     # Calculate number of reviews
     num_reviews = len(new_reviews)
+
+    # If there were only deletions or updates, exit to prevent errors
+    if len(new_reviews) == 0:
+        return
+
     logging.info(f"Number of reviews extracted: {num_reviews}")
 
     # Extract the text portion of the reviews
@@ -78,8 +87,8 @@ def review_analyser(reviewTableTriggerBinding: str) -> None:
     return
 
 
-# The spaCy en_core_web_lg model is manually uploaded
-# Its path is determined and loaded into the spaCy module
+# The spaCy en_core_web_lg model is manually uploaded to the function app
+# Its path is determined relative to the container and loaded in based on that
 def get_spacy_model():
 
     path = pathlib.Path(__file__).parent / "en_core_web_lg/en_core_web_lg-3.8.0"
@@ -92,7 +101,11 @@ def get_spacy_model():
 # Send a notification with the analysis to the managers mobile device using NTFY.sh
 def notify_manager(num_reviews, average_rating, average_sentiment, temporal_sentences):
 
+    t = time.localtime()
+    current_time = time.strftime("%H:%M:%S", t)
+
     summary = (
+        f"Time of analysis: {current_time}\n"
         f"Number of reviews analysed: {num_reviews}\n"
         f"Average Rating: {average_rating:.2f}\n"
         f"Average Sentiment: {average_sentiment:.2f}\n"
@@ -101,6 +114,7 @@ def notify_manager(num_reviews, average_rating, average_sentiment, temporal_sent
     if temporal_sentences:
         summary += "Sentences mentioning time:\n" + "\n".join(temporal_sentences) + "\n"
 
+    # Post request contining summary to NTFY.sh, this can be subscribed to on the manager's smartphone
     requests.post(
         "https://ntfy.sh/BDATNmAG4qNtw2vMhQ", data=summary.encode(encoding="utf-8")
     )

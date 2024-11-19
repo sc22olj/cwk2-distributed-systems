@@ -28,6 +28,8 @@ app = func.FunctionApp()
 def review_collector(
     collectionTimer: func.TimerRequest, reviewTableBinding: func.Out[func.SqlRow]
 ) -> None:
+
+    # Open the file that contains the dummy reviews
     with open("sorted_modified_reviews.json", "r") as file:
         dataset = json.load(file)
 
@@ -38,22 +40,27 @@ def review_collector(
         + collect_trustpilot(dataset)
     )
 
-    # Commit the reviews to a DB
+    # Commit the reviews to a DB, note that this is done in a batch to reduce individual operations
     if new_reviews:
         logging.info(new_reviews)
-        for review in new_reviews:
-            reviewTableBinding.set(
-                func.SqlRow(
-                    {
-                        "db_review_id": str(uuid.uuid4()),
-                        "api_review_id": str(review["review_id"]),
-                        "rating": int(review["stars"]),
-                        "review_text": str(review["text"]),
-                    }
-                )
+        batch_reviews = [
+            func.SqlRow(
+                {
+                    "db_review_id": str(uuid.uuid4()),
+                    "api_review_id": str(review["review_id"]),
+                    "rating": int(review["stars"]),
+                    "review_text": str(review["text"]),
+                }
             )
+            for review in new_reviews
+        ]
+        reviewTableBinding.set(batch_reviews)
 
     return
+
+
+# Note that in the real implementation of the following functions, we would implement some logic to filter out only
+# reviews that are new. We could check the date of the review and compare it to the previous function invocation
 
 
 # Collects reviews from the Google reviews API
@@ -64,20 +71,13 @@ def collect_google(dataset):
 
     logging.info("Collecting reviews from Google")
 
-    # Note that in the real implementation, we would implement some logic to filter out only
-    # reviews that are new. We could check the date of the review and compare it to the previous
-    # function invocation
-
     reviews = []
 
     # Simulate that there may or may not be new review(s)
-    if random.choices([0, 1], weights=[0.2, 0.5], k=1)[0] == 1:
+    if random.choices([0, 1], weights=[0.3, 0.7], k=1)[0] == 1:
 
-        # Randomly pick between 2 and 4 reviews from the dataset
-        reviews = random.sample(dataset, random.randint(2, 4))
-
-    else:
-        logging.info("No new reviews")
+        # Randomly pick some reviews from the dataset
+        reviews = random.sample(dataset, random.randint(1, 12))
 
     return reviews
 
@@ -90,10 +90,6 @@ def collect_tripadvisor(dataset):
 
     logging.info("Collecting reviews from Tripadvisor")
 
-    # Note that in the real implementation, we would implement some logic to filter out only
-    # reviews that are new. We could check the date of the review and compare it to the previous
-    # function invocation
-
     reviews = []
 
     # Simulate that there may or may not be new review(s)
@@ -101,9 +97,6 @@ def collect_tripadvisor(dataset):
 
         # Randomly pick between 1 and 3 reviews from the dataset
         reviews = random.sample(dataset, random.randint(1, 3))
-
-    else:
-        logging.info("No new reviews")
 
     return reviews
 
@@ -116,10 +109,6 @@ def collect_trustpilot(dataset):
 
     logging.info("Collecting reviews from Trustpilot")
 
-    # Note that in the real implementation, we would implement some logic to filter out only
-    # reviews that are new. We could check the date of the review and compare it to the previous
-    # function invocation
-
     reviews = []
 
     # Simulate that there may or may not be new review(s)
@@ -127,8 +116,5 @@ def collect_trustpilot(dataset):
 
         # Pick a review from the dataset
         reviews = random.sample(dataset, 1)
-
-    else:
-        logging.info("No new reviews")
 
     return reviews
