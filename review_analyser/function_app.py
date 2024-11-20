@@ -91,7 +91,7 @@ def review_analyser(reviewTableTriggerBinding: str) -> None:
 # Its path is determined relative to the container and loaded in based on that
 def get_spacy_model():
 
-    path = pathlib.Path(__file__).parent / "en_core_web_lg/en_core_web_lg-3.8.0"
+    path = pathlib.Path(__file__).parent / "en_core_web_md/en_core_web_md-3.8.0"
 
     model = spacy.load(path)
 
